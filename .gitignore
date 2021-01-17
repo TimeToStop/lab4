@@ -1,0 +1,5 @@
+/lab4.iml
+/.idea
+/target
+/src/main/resources/static/*
+/src/main/resources/angular/node_modules
