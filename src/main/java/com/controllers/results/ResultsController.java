@@ -38,8 +38,6 @@ public class ResultsController
 
         List<Result> results = this.result_repository.getAllByUserId(SessionService.global.get(session.getId()));
 
-        System.out.println(JsonResponse.data(JsonArray.from(results)));
-
         return new ResponseEntity<>(
                 JsonResponse.data(JsonArray.from(results)),
                 HttpStatus.OK
