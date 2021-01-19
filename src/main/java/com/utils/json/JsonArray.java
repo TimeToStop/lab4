@@ -1,6 +1,5 @@
 package com.utils.json;
 
-import java.util.Collection;
 
 public class JsonArray implements Jsonable
 {
@@ -43,7 +42,7 @@ public class JsonArray implements Jsonable
     }
 
 
-    public static <T extends Jsonable> JsonArray from(Collection<T> collection)
+    public static <T extends Jsonable> JsonArray from(Iterable<T> collection)
     {
         JsonArray array = new JsonArray();
 

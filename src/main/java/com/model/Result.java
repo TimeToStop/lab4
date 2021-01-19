@@ -106,7 +106,8 @@ public class Result implements Jsonable {
     }
 
     public Result(double x, double y, double r,
-                  String answer, String time, long workTime, long userId ) {
+                  String answer, String time, long workTime, long userId )
+    {
         this.x = x;
         this.y = y;
         this.r = r;

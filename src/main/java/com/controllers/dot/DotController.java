@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 
@@ -51,16 +53,21 @@ public class DotController
 
         long start = System.currentTimeMillis();
 
+        String pattern = "MM-dd-yyyy";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        String date = simpleDateFormat.format(new Date());
+
         Result result = new Result(
                 x,
                 y,
                 r,
                 HitChecker.isInArea(x, y, r) ? "true" : "false",
-                "",
-                System.currentTimeMillis() - start,
+                date,
+                0,
                 SessionService.global.get(session.getId())
         );
 
+        result.setWorkTime(System.currentTimeMillis() - start);
         result_repository.save(result);
         return new ResponseEntity<String>(JsonResponse.data(result), HttpStatus.OK);
     }
