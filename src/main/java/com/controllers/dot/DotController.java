@@ -9,14 +9,13 @@ import com.utils.HitChecker;
 import com.utils.json.JsonResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -29,31 +28,33 @@ public class DotController
         this.result_repository = result_repository;
     }
 
-    @GetMapping("/rest/clear")
+    @PostMapping("/rest/clear")
     public ResponseEntity<String> clear(HttpSession session)
     {
         if (!SessionService.global.has(session.getId())) {
             return new ResponseEntity<String>(JsonResponse.error("you are not logged in"), HttpStatus.OK);
         }
-
         List<Result> results = this.result_repository.getAllByUserId(SessionService.global.get(session.getId()));
         this.result_repository.deleteAll(results);
         return new ResponseEntity<String>(JsonResponse.data(null), HttpStatus.OK);
     }
 
-    @GetMapping("/rest/dot")
-    public ResponseEntity<String> dot(HttpSession session, @RequestParam("x") String x, @RequestParam("y") String y, @RequestParam("r") String r)
+    @PostMapping("/rest/dot")
+    public ResponseEntity<String> dot(HttpSession session, @RequestBody Map<String, String> body)
     {
         long start = System.currentTimeMillis();
 
-        if (!SessionService.global.has(session.getId())) {
+        if (!SessionService.global.has(session.getId())
+                || body.get("x") == null
+                || body.get("y") == null
+                || body.get("r") == null) {
             return new ResponseEntity<String>(JsonResponse.error("you are not logged in"), HttpStatus.OK);
         } else {
             try
             {
-                Validator.validateX(x);
-                Validator.validateY(y);
-                Validator.validateR(r);
+                Validator.validateX(body.get("x"));
+                Validator.validateY(body.get("y"));
+                Validator.validateR(body.get("r"));
             }
             catch (RuntimeException e)
             {
@@ -65,10 +66,10 @@ public class DotController
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         String date = simpleDateFormat.format(new Date());
 
-        Result result = new Result(Double.parseDouble(x.replace(',', '.')),
-                Double.parseDouble(y.replace(',', '.')),
-                Double.parseDouble(r.replace(',', '.')),
-                HitChecker.isInArea(Double.parseDouble(x.replace(',', '.')), Double.parseDouble(y.replace(',', '.')), Double.parseDouble(r.replace(',', '.'))) ? "true" : "false",
+        Result result = new Result(Double.parseDouble(body.get("x").replace(',', '.')),
+                Double.parseDouble(body.get("y").replace(',', '.')),
+                Double.parseDouble(body.get("r").replace(',', '.')),
+                HitChecker.isInArea(Double.parseDouble(body.get("x").replace(',', '.')), Double.parseDouble(body.get("y").replace(',', '.')), Double.parseDouble(body.get("r").replace(',', '.'))) ? "true" : "false",
                 date,
                 0,
                 SessionService.global.get(session.getId())
@@ -79,19 +80,22 @@ public class DotController
         return new ResponseEntity<String>(JsonResponse.data(result), HttpStatus.OK);
     }
 
-    @GetMapping("/rest/image")
-    public ResponseEntity<String> image(HttpSession session, @RequestParam("x") String x, @RequestParam("y") String y, @RequestParam("r") String r)
+    @PostMapping("/rest/image")
+    public ResponseEntity<String> image(HttpSession session, @RequestBody Map<String, String> body)
     {
         long start = System.currentTimeMillis();
 
-        if (!SessionService.global.has(session.getId())) {
+        if (!SessionService.global.has(session.getId())
+                || body.get("x") == null
+                || body.get("y") == null
+                || body.get("r") == null) {
             return new ResponseEntity<String>(JsonResponse.error("you are not logged in"), HttpStatus.OK);
         } else {
             try
             {
-                double x_value = Double.parseDouble(x.replace(',', '.'));
-                double y_value = Double.parseDouble(y.replace(',', '.'));
-                double r_value = Double.parseDouble(r.replace(',', '.'));
+                double x_value = Double.parseDouble(body.get("x").replace(',', '.'));
+                double y_value = Double.parseDouble(body.get("y").replace(',', '.'));
+                double r_value = Double.parseDouble(body.get("r").replace(',', '.'));
 
 
                 String pattern = "MM-dd-yyyy";

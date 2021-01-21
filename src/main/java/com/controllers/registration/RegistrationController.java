@@ -6,10 +6,9 @@ import com.repository.UserRepository;
 import com.utils.json.JsonResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 public class RegistrationController
@@ -21,10 +20,17 @@ public class RegistrationController
         this.user_repository = user_repository;
     }
 
-    @GetMapping("/rest/registration")
-    public ResponseEntity<String> registration(@RequestParam(name="username") String username, @RequestParam(name="password") String password)
+    @PostMapping("/rest/registration")
+    public ResponseEntity<String> registration(@RequestBody Map<String, String> body)
     {
-        User user = user_repository.findByUsername(username);
+        if (body.get("username") == null || body.get("password") == null) {
+            return new ResponseEntity<String>(
+                    JsonResponse.error("Username or password is not set"),
+                    HttpStatus.OK
+            );
+        }
+
+        User user = user_repository.findByUsername(body.get("username"));
 
         if (user != null) {
             return new ResponseEntity<String>(
@@ -32,7 +38,7 @@ public class RegistrationController
                     HttpStatus.OK
             );
         } else {
-            user_repository.save(new User(username, password));
+            user_repository.save(new User(body.get("username"), body.get("password")));
 
             return new ResponseEntity<String>(
                     JsonResponse.data(null),
